@@ -8,6 +8,8 @@ The implementation is based on the [gosrt client sample application](https://git
 
 The real-time statistics can be used for various purposes such as automatic OBS scene switching based on connection quality, displaying connection status to viewers, or monitoring stream health.
 
+**[obs-srt-bridge](https://github.com/e04/obs-srt-bridge)** - A tool that automatically switches OBS scenes based on SRT statistics. This application is specifically designed to work with obs-srt-bridge for seamless OBS integration.
+
 ## Usage
 
 ### Basic Command
