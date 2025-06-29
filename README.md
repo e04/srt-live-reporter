@@ -1,6 +1,24 @@
 # srt-live-reporter
 
-<img width="1412" alt="srt-live-reoprter" src="https://github.com/user-attachments/assets/fae06993-9d3e-49bc-95bb-ad4e65213326" />
+```
+                     ┏━━━━━━━━━━━━━━━━━┓
+  SRT Stream ━━━▷┃         srt-live-reporter        ┃━━▷ UDP or SRT Stream
+                     ┗━━━━━━━━━━━━━━━━━┛
+                                      ╎
+                                      ╎  Web Socket
+                                      ╎
+                                      ▽
+                     ┏━━━━━━━━━━━━━━━━━┓
+                     ┃ Stats                            ┃
+                     ┃  ┏━━━━━━━━━━━━━┓  ┃
+                     ┃  ┃ 1 {                      ┃  ┃
+                     ┃  ┃ 2   MbpsRecvRate: 10,    ┃  ┃
+                     ┃  ┃ 3   MsRTT: 3,            ┃  ┃
+                     ┃  ┃ 4   PktRecvLossRate: 0,  ┃  ┃
+                     ┃  ┃ 5   ....                 ┃  ┃
+                     ┃  ┗━━━━━━━━━━━━━┛  ┃
+                     ┗━━━━━━━━━━━━━━━━━┛
+```
 
 A lightweight Go application for receiving and relaying SRT (Secure Reliable Transport) live streams with real-time statistics reporting via WebSocket.
 
@@ -155,5 +173,5 @@ wscat -c ws://localhost:8888/ws
 ## Dependencies
 
 - [github.com/datarhei/gosrt](https://github.com/datarhei/gosrt) - SRT protocol implementation
-    - The implementation is based on the [gosrt client sample application](https://github.com/datarhei/gosrt/tree/main/contrib/client). 
+  - The implementation is based on the [gosrt client sample application](https://github.com/datarhei/gosrt/tree/main/contrib/client).
 - [github.com/gorilla/websocket](https://github.com/gorilla/websocket) - WebSocket support
