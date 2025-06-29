@@ -1,4 +1,4 @@
-# SRT Live Reporter
+# srt-live-reporter
 
 <img width="1412" alt="srt-live-reoprter" src="https://github.com/user-attachments/assets/fae06993-9d3e-49bc-95bb-ad4e65213326" />
 
