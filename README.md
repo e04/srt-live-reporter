@@ -1,5 +1,7 @@
 # SRT Live Reporter
 
+<img width="1412" alt="srt-live-reoprter" src="https://github.com/user-attachments/assets/fae06993-9d3e-49bc-95bb-ad4e65213326" />
+
 A lightweight Go application for receiving and relaying SRT (Secure Reliable Transport) live streams with real-time statistics reporting via WebSocket. Built with [gosrt](https://github.com/datarhei/gosrt) for SRT protocol support.
 
 The implementation is based on the [gosrt client sample application](https://github.com/datarhei/gosrt/tree/main/contrib/client).
