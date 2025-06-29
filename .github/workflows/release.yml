@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24"
+
+      - name: Create output directory
+        run: mkdir -p dist
+
+      - name: Build for Windows x64
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          mkdir -p dist/windows-x64
+          go build -o dist/windows-x64/srt-live-reporter.exe
+
+      - name: Build for macOS ARM64
+        env:
+          GOOS: darwin
+          GOARCH: arm64
+        run: |
+          mkdir -p dist/macos-arm64
+          go build -o dist/macos-arm64/srt-live-reporter
+
+      - name: Build for Linux x64
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          mkdir -p dist/linux-x64
+          go build -o dist/linux-x64/srt-live-reporter
+
+      - name: Build for Linux ARM64
+        env:
+          GOOS: linux
+          GOARCH: arm64
+        run: |
+          mkdir -p dist/linux-arm64
+          go build -o dist/linux-arm64/srt-live-reporter
+
+      - name: Make binaries executable
+        run: |
+          chmod +x dist/macos-arm64/srt-live-reporter
+          chmod +x dist/linux-x64/srt-live-reporter
+          chmod +x dist/linux-arm64/srt-live-reporter
+
+      - name: Create ZIP archives
+        run: |
+          cd dist
+          zip -r srt-live-reporter-windows-x64.zip windows-x64/
+          zip -r srt-live-reporter-macos-arm64.zip macos-arm64/
+          zip -r srt-live-reporter-linux-x64.zip linux-x64/
+          zip -r srt-live-reporter-linux-arm64.zip linux-arm64/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/srt-live-reporter-windows-x64.zip
+            dist/srt-live-reporter-macos-arm64.zip
+            dist/srt-live-reporter-linux-x64.zip
+            dist/srt-live-reporter-linux-arm64.zip
+          draft: false
+          prerelease: false
