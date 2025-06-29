@@ -171,8 +171,8 @@ type statsMessage struct {
 }
 
 type stats struct {
-	period time.Duration
-	last   time.Time
+	interval   time.Duration // reporting interval
+	lastReport time.Time     // last time a report was sent
 
 	reader io.ReadCloser
 	writer io.WriteCloser
@@ -180,66 +180,68 @@ type stats struct {
 }
 
 func (s *stats) init(period time.Duration, reader io.ReadCloser, writer io.WriteCloser, hub *hub) {
-	s.period = period
-	s.last = time.Now()
+	s.interval = period
 	s.reader = reader
 	s.writer = writer
 	s.hub = hub
 
-	go s.tick()
+	go s.reportIfDue()
 }
 
-func (s *stats) tick() {
-	ticker := time.NewTicker(s.period)
-	defer ticker.Stop()
+// reportIfDue gathers and outputs SRT statistics at most once every `interval`.
+// It should be invoked after data has been successfully read (i.e., traffic is flowing).
+func (s *stats) reportIfDue() {
+	if time.Since(s.lastReport) < s.interval {
+		return
+	}
 
-	for c := range ticker.C {
-		if srtconn, ok := s.writer.(srt.Conn); ok {
-			stats := &srt.Statistics{}
-			srtconn.Stats(stats)
+	now := time.Now()
 
-			if stats.Instantaneous.MbpsSentRate > 0 {
-				fmt.Fprintf(os.Stderr, "MbpsSentRate: %.2f Mbps\n", stats.Instantaneous.MbpsSentRate)
+	// Writer statistics
+	if srtconn, ok := s.writer.(srt.Conn); ok {
+		stats := &srt.Statistics{}
+		srtconn.Stats(stats)
 
-				if s.hub != nil {
-					writerMsg := statsMessage{
-						Timestamp: c,
-						Type:      "writer",
-						Stats:     stats,
-					}
-					if jsonData, err := json.Marshal(writerMsg); err == nil {
-						select {
-						case s.hub.broadcast <- jsonData:
-						default:
-						}
-					}
-				}
+		fmt.Fprintf(os.Stderr, "MbpsSentRate: %.2f Mbps\n", stats.Instantaneous.MbpsSentRate)
+
+		if s.hub != nil {
+			writerMsg := statsMessage{
+				Timestamp: now,
+				Type:      "writer",
+				Stats:     stats,
 			}
-		}
-
-		if srtconn, ok := s.reader.(srt.Conn); ok {
-			stats := &srt.Statistics{}
-			srtconn.Stats(stats)
-
-			if stats.Instantaneous.MbpsRecvRate > 0 {
-				fmt.Fprintf(os.Stderr, "MbpsRecvRate: %.2f Mbps\n", stats.Instantaneous.MbpsRecvRate)
-
-				if s.hub != nil {
-					readerMsg := statsMessage{
-						Timestamp: c,
-						Type:      "reader",
-						Stats:     stats,
-					}
-					if jsonData, err := json.Marshal(readerMsg); err == nil {
-						select {
-						case s.hub.broadcast <- jsonData:
-						default:
-						}
-					}
+			if jsonData, err := json.Marshal(writerMsg); err == nil {
+				select {
+				case s.hub.broadcast <- jsonData:
+				default:
 				}
 			}
 		}
 	}
+
+	// Reader statistics
+	if srtconn, ok := s.reader.(srt.Conn); ok {
+		stats := &srt.Statistics{}
+		srtconn.Stats(stats)
+
+		fmt.Fprintf(os.Stderr, "MbpsRecvRate: %.2f Mbps\n", stats.Instantaneous.MbpsRecvRate)
+
+		if s.hub != nil {
+			readerMsg := statsMessage{
+				Timestamp: now,
+				Type:      "reader",
+				Stats:     stats,
+			}
+			if jsonData, err := json.Marshal(readerMsg); err == nil {
+				select {
+				case s.hub.broadcast <- jsonData:
+				default:
+				}
+			}
+		}
+	}
+
+	s.lastReport = now
 }
 
 func handleWebSocket(hub *hub, w http.ResponseWriter, r *http.Request) {
@@ -316,8 +318,12 @@ func main() {
 	go func() {
 		buffer := make([]byte, 2048)
 
-		s := stats{}
-		s.init(1*time.Second, r, w, hub)
+		s := &stats{
+			interval: time.Second,
+			reader:   r,
+			writer:   w,
+			hub:      hub,
+		}
 
 		for {
 			n, err := r.Read(buffer)
@@ -364,6 +370,9 @@ func main() {
 				doneChan <- fmt.Errorf("write: %w", err)
 				return
 			}
+
+			// Report statistics if one second has passed since the last report.
+			s.reportIfDue()
 		}
 	}()
 

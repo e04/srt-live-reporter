@@ -143,7 +143,7 @@ interface WebSocketMessage {
 }
 ```
 
-For detailed information about the statistics fields, refer to the [gosrt statistics documentation](https://github.com/datarhei/gosrt/blob/main/statistics.go).
+For detailed information about the statistics fields, refer to the [gosrt statistics code](https://github.com/datarhei/gosrt/blob/main/statistics.go).
 
 ### Viewing Statistics with wscat
 
