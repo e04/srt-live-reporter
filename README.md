@@ -1,23 +1,23 @@
 # srt-live-reporter
 
 ```
-                     ┏━━━━━━━━━━━━━━━━━┓
+                 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
   SRT Stream ━━━▷┃         srt-live-reporter        ┃━━▷ UDP or SRT Stream
-                     ┗━━━━━━━━━━━━━━━━━┛
-                                      ╎
-                                      ╎  Web Socket
-                                      ╎
-                                      ▽
-                     ┏━━━━━━━━━━━━━━━━━┓
-                     ┃ Stats                            ┃
-                     ┃  ┏━━━━━━━━━━━━━┓  ┃
-                     ┃  ┃ 1 {                      ┃  ┃
-                     ┃  ┃ 2   MbpsRecvRate: 10,    ┃  ┃
-                     ┃  ┃ 3   MsRTT: 3,            ┃  ┃
-                     ┃  ┃ 4   PktRecvLossRate: 0,  ┃  ┃
-                     ┃  ┃ 5   ....                 ┃  ┃
-                     ┃  ┗━━━━━━━━━━━━━┛  ┃
-                     ┗━━━━━━━━━━━━━━━━━┛
+                 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                                  ╎
+                                  ╎  Web Socket
+                                  ╎
+                                  ▽
+                 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+                 ┃ Stats                          ┃
+                 ┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃
+                 ┃  ┃ 1 {                      ┃  ┃
+                 ┃  ┃ 2   MbpsRecvRate: 10,    ┃  ┃
+                 ┃  ┃ 3   MsRTT: 3,            ┃  ┃
+                 ┃  ┃ 4   PktRecvLossRate: 0,  ┃  ┃
+                 ┃  ┃ 5   ....                 ┃  ┃
+                 ┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃
+                 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
 
 A lightweight Go application for receiving and relaying SRT (Secure Reliable Transport) live streams with real-time statistics reporting via WebSocket.
