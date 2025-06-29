@@ -171,11 +171,6 @@ type statsMessage struct {
 }
 
 type stats struct {
-	bprev  uint64
-	btotal uint64
-
-	lock sync.Mutex
-
 	period time.Duration
 	last   time.Time
 
@@ -185,9 +180,6 @@ type stats struct {
 }
 
 func (s *stats) init(period time.Duration, reader io.ReadCloser, writer io.WriteCloser, hub *hub) {
-	s.bprev = 0
-	s.btotal = 0
-
 	s.period = period
 	s.last = time.Now()
 	s.reader = reader
@@ -202,35 +194,24 @@ func (s *stats) tick() {
 	defer ticker.Stop()
 
 	for c := range ticker.C {
-		s.lock.Lock()
-		diff := c.Sub(s.last)
-
-		var bavg float64
-		if diff.Seconds() > 0 {
-			bavg = float64(s.btotal-s.bprev) * 8 / (1000 * 1000 * diff.Seconds())
-		}
-
-		s.bprev = s.btotal
-		s.last = c
-
-		s.lock.Unlock()
-
-		fmt.Fprintf(os.Stderr, "\r%-54s: %8.1f Mbps", c, bavg)
-
 		if srtconn, ok := s.writer.(srt.Conn); ok {
 			stats := &srt.Statistics{}
 			srtconn.Stats(stats)
 
-			if s.hub != nil {
-				writerMsg := statsMessage{
-					Timestamp: c,
-					Type:      "writer",
-					Stats:     stats,
-				}
-				if jsonData, err := json.Marshal(writerMsg); err == nil {
-					select {
-					case s.hub.broadcast <- jsonData:
-					default:
+			if stats.Instantaneous.MbpsSentRate > 0 {
+				fmt.Fprintf(os.Stderr, "MbpsSentRate: %.2f Mbps\n", stats.Instantaneous.MbpsSentRate)
+
+				if s.hub != nil {
+					writerMsg := statsMessage{
+						Timestamp: c,
+						Type:      "writer",
+						Stats:     stats,
+					}
+					if jsonData, err := json.Marshal(writerMsg); err == nil {
+						select {
+						case s.hub.broadcast <- jsonData:
+						default:
+						}
 					}
 				}
 			}
@@ -240,28 +221,25 @@ func (s *stats) tick() {
 			stats := &srt.Statistics{}
 			srtconn.Stats(stats)
 
-			if s.hub != nil {
-				readerMsg := statsMessage{
-					Timestamp: c,
-					Type:      "reader",
-					Stats:     stats,
-				}
-				if jsonData, err := json.Marshal(readerMsg); err == nil {
-					select {
-					case s.hub.broadcast <- jsonData:
-					default:
+			if stats.Instantaneous.MbpsRecvRate > 0 {
+				fmt.Fprintf(os.Stderr, "MbpsRecvRate: %.2f Mbps\n", stats.Instantaneous.MbpsRecvRate)
+
+				if s.hub != nil {
+					readerMsg := statsMessage{
+						Timestamp: c,
+						Type:      "reader",
+						Stats:     stats,
+					}
+					if jsonData, err := json.Marshal(readerMsg); err == nil {
+						select {
+						case s.hub.broadcast <- jsonData:
+						default:
+						}
 					}
 				}
 			}
 		}
 	}
-}
-
-func (s *stats) update(n uint64) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	s.btotal += n
 }
 
 func handleWebSocket(hub *hub, w http.ResponseWriter, r *http.Request) {
@@ -339,7 +317,7 @@ func main() {
 		buffer := make([]byte, 2048)
 
 		s := stats{}
-		s.init(200*time.Millisecond, r, w, hub)
+		s.init(1*time.Second, r, w, hub)
 
 		for {
 			n, err := r.Read(buffer)
@@ -364,8 +342,6 @@ func main() {
 				doneChan <- fmt.Errorf("read: %w", err)
 				return
 			}
-
-			s.update(uint64(n))
 
 			if _, err := w.Write(buffer[:n]); err != nil {
 				if isSRT(to) {
