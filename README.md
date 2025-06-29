@@ -1,9 +1,9 @@
 # srt-live-reporter
 
 ```
-                 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  SRT Stream ━━━▷┃         srt-live-reporter        ┃━━▷ UDP or SRT Stream
-                 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  SRT Stream ━━━▷┃        srt-live-reporter        ┃━━▷ UDP or SRT Stream
+                 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
                                   ╎
                                   ╎  Web Socket
                                   ╎
