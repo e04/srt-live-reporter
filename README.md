@@ -24,6 +24,8 @@ A lightweight Go application for receiving and relaying SRT (Secure Reliable Tra
 
 This application is specifically designed to work with **[obs-srt-bridge](https://github.com/e04/obs-srt-bridge)** for seamless OBS integration with SRT protocol.
 
+For more details, please check this gist: **[Building a IRL Streaming Setup with go-srtla, srt-live-reporter and obs-srt-bridge](https://gist.github.com/e04/3914d98d6d0a55c689ab724ac6896081)** 
+
 ## Usage
 
 ### Basic Command
