@@ -179,15 +179,6 @@ type stats struct {
 	hub    *hub
 }
 
-func (s *stats) init(period time.Duration, reader io.ReadCloser, writer io.WriteCloser, hub *hub) {
-	s.interval = period
-	s.reader = reader
-	s.writer = writer
-	s.hub = hub
-
-	go s.reportIfDue()
-}
-
 // reportIfDue gathers and outputs SRT statistics at most once every `interval`.
 // It should be invoked after data has been successfully read (i.e., traffic is flowing).
 func (s *stats) reportIfDue() {
@@ -272,6 +263,9 @@ func isSRT(addr string) bool {
 }
 
 func main() {
+	// Remove timestamp from log output
+	log.SetFlags(0)
+
 	var from string
 	var to string
 	var wsPort int
