@@ -270,8 +270,8 @@ func main() {
 	var to string
 	var wsPort int
 
-	flag.StringVar(&from, "from", "", "Address to read from, sources: srt://, udp://, - (stdin)")
-	flag.StringVar(&to, "to", "", "Address to write to, targets: srt://, udp://, file://, - (stdout)")
+	flag.StringVar(&from, "from", "srt://:5001?mode=listener", "Address to read from (default: srt://:5001?mode=listener), sources: srt://, udp://, - (stdin)")
+	flag.StringVar(&to, "to", "udp://:5002", "Address to write to (default: udp://:5002), targets: srt://, udp://, file://, - (stdout)")
 	flag.IntVar(&wsPort, "wsport", 8888, "WebSocket server port (0 to disable)")
 
 	flag.Parse()
