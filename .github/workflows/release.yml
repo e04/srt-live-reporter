@@ -10,7 +10,8 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-posix:
+    name: Build (Linux & macOS)
     runs-on: ubuntu-latest
 
     steps:
@@ -25,14 +26,7 @@ jobs:
       - name: Create output directory
         run: mkdir -p dist
 
-      - name: Build for Windows x64
-        env:
-          GOOS: windows
-          GOARCH: amd64
-        run: |
-          mkdir -p dist/windows-x64
-          go build -o dist/windows-x64/srt-live-reporter.exe
-
+      # macOS (ARM64)
       - name: Build for macOS ARM64
         env:
           GOOS: darwin
@@ -41,6 +35,7 @@ jobs:
           mkdir -p dist/macos-arm64
           go build -o dist/macos-arm64/srt-live-reporter
 
+      # Linux (x64)
       - name: Build for Linux x64
         env:
           GOOS: linux
@@ -49,6 +44,7 @@ jobs:
           mkdir -p dist/linux-x64
           go build -o dist/linux-x64/srt-live-reporter
 
+      # Linux (ARM64)
       - name: Build for Linux ARM64
         env:
           GOOS: linux
@@ -57,7 +53,7 @@ jobs:
           mkdir -p dist/linux-arm64
           go build -o dist/linux-arm64/srt-live-reporter
 
-      - name: Make binaries executable
+      - name: Make POSIX binaries executable
         run: |
           chmod +x dist/macos-arm64/srt-live-reporter
           chmod +x dist/linux-x64/srt-live-reporter
@@ -66,18 +62,61 @@ jobs:
       - name: Create ZIP archives
         run: |
           cd dist
-          zip -r srt-live-reporter-windows-x64.zip windows-x64/
           zip -r srt-live-reporter-macos-arm64.zip macos-arm64/
           zip -r srt-live-reporter-linux-x64.zip linux-x64/
           zip -r srt-live-reporter-linux-arm64.zip linux-arm64/
 
-      - name: Create Release
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: posix-zips
+          path: dist/*.zip
+
+  build-windows:
+    name: Build Windows x64
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24"
+
+      - name: Create output directory
+        run: mkdir dist
+
+      - name: Build for Windows x64
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          mkdir dist\windows-x64
+          go build -o dist\windows-x64\srt-live-reporter.exe
+          Compress-Archive -Path dist\windows-x64\* -DestinationPath dist\srt-live-reporter-windows-x64.zip
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: dist/srt-live-reporter-windows-x64.zip
+
+  release:
+    name: Create Release
+    needs: [build-posix, build-windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            dist/srt-live-reporter-windows-x64.zip
-            dist/srt-live-reporter-macos-arm64.zip
-            dist/srt-live-reporter-linux-x64.zip
-            dist/srt-live-reporter-linux-arm64.zip
+          files: dist/**/*.zip
           draft: false
           prerelease: false
