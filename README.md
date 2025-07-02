@@ -22,9 +22,11 @@
 
 A lightweight Go application for receiving and relaying SRT (Secure Reliable Transport) live streams with real-time statistics reporting via WebSocket.
 
-This application is specifically designed to work with **[obs-srt-bridge](https://github.com/e04/obs-srt-bridge)** for seamless OBS integration with SRT protocol.
+## The `go-irl` Stack
 
-For more details, please check this gist: **[Building a IRL Streaming Setup with go-srtla, srt-live-reporter and obs-srt-bridge](https://gist.github.com/e04/3914d98d6d0a55c689ab724ac6896081)** 
+`srt-live-reporter` is a core component of **[go-irl](https://github.com/e04/go-irl)**, a complete, modern streaming stack designed for robust IRL broadcasting.
+
+If you are looking for an easier setup with more advanced features, consider using `go-irl`. It bundles `srt-live-reporter` with other essential tools (`obs-srt-bridge`, `go-srtla`) and provides a simple, one-command launcher.
 
 ## Usage
 
