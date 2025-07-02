@@ -62,9 +62,9 @@ jobs:
       - name: Create ZIP archives
         run: |
           cd dist
-          zip -r srt-live-reporter-macos-arm64.zip macos-arm64/
-          zip -r srt-live-reporter-linux-x64.zip linux-x64/
-          zip -r srt-live-reporter-linux-arm64.zip linux-arm64/
+          zip -j srt-live-reporter-macos-arm64.zip macos-arm64/srt-live-reporter
+          zip -j srt-live-reporter-linux-x64.zip linux-x64/srt-live-reporter
+          zip -j srt-live-reporter-linux-arm64.zip linux-arm64/srt-live-reporter
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
