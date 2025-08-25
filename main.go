@@ -193,7 +193,7 @@ func (s *stats) reportIfDue() {
 		stats := &srt.Statistics{}
 		srtconn.Stats(stats)
 
-		fmt.Fprintf(os.Stderr, "MbpsSentRate: %.2f Mbps\n", stats.Instantaneous.MbpsSentRate)
+		fmt.Fprintf(os.Stderr, "SentRate: %.2f Mbps\n", stats.Instantaneous.MbpsSentRate)
 
 		if s.hub != nil {
 			writerMsg := statsMessage{
@@ -215,7 +215,7 @@ func (s *stats) reportIfDue() {
 		stats := &srt.Statistics{}
 		srtconn.Stats(stats)
 
-		fmt.Fprintf(os.Stderr, "MbpsRecvRate: %.2f Mbps\n", stats.Instantaneous.MbpsRecvRate)
+		fmt.Fprintf(os.Stderr, "ReceiveRate: %.2f Mbps\n", stats.Instantaneous.MbpsRecvRate)
 
 		if s.hub != nil {
 			readerMsg := statsMessage{
@@ -286,24 +286,25 @@ func main() {
 		})
 
 		go func() {
-			log.Printf("WebSocket server starting on port %d", wsPort)
+			log.Printf("WebSocket server address: ws://:%d", wsPort)
 			if err := http.ListenAndServe(fmt.Sprintf(":%d", wsPort), nil); err != nil {
 				log.Printf("WebSocket server error: %v", err)
 			}
 		}()
 	}
 
+	log.Printf("Source address: %s", from)
+	log.Printf("Destination address: %s", to)
+
 	r, err := openReader(from)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: from: %v\n", err)
-		flag.PrintDefaults()
 		os.Exit(1)
 	}
 
 	w, err := openWriter(to)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: to: %v\n", err)
-		flag.PrintDefaults()
 		os.Exit(1)
 	}
 
