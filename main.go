@@ -286,8 +286,8 @@ func main() {
 		})
 
 		go func() {
-			log.Printf("WebSocket server address: ws://:%d", wsPort)
-			if err := http.ListenAndServe(fmt.Sprintf(":%d", wsPort), nil); err != nil {
+			log.Printf("WebSocket server address: ws://127.0.0.1:%d", wsPort)
+			if err := http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", wsPort), nil); err != nil {
 				log.Printf("WebSocket server error: %v", err)
 			}
 		}()
